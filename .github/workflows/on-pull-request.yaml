@@ -1,0 +1,11 @@
+name: Test Application
+run-name: Test Application
+on:
+  pull_request:
+    branches:
+      - master
+      - develop
+      - release/*
+jobs:
+  test_application:
+    uses: bloiseleo/gymbro/.github/workflows/test-application.yaml@master
