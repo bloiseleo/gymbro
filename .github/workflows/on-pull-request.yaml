@@ -1,6 +1,7 @@
 name: Test Application
 run-name: Test Application
 on:
+  workflow_dispatch:
   pull_request:
     branches:
       - master
