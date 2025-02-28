@@ -5,6 +5,7 @@ export const userRepositoryMock = {
   create: jest.fn(() => new User()),
   existsBy: jest.fn(),
   save: jest.fn(),
+  findOneBy: jest.fn(),
 };
 
 export const UserRepositoryMockProvider = {
