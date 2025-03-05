@@ -12,5 +12,5 @@
     "^test/(.*)$": "<rootDir>/test/$1"
   },
   "verbose": true,
-  "reporters": [["github-actions", { "silent": false }], "summary"]
+  "reporters": [["github-actions", { "silent": false }], "summary", "default"]
 }

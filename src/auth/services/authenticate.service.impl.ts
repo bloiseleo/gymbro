@@ -28,7 +28,7 @@ export class AuthenticateService implements IAuthenticateService {
       throw new Unauthorized(`username [${username}] was not found`);
     }
     if (!this.equals(password, user.password)) {
-      throw new Unauthorized(`wrogn password for user [username][${username}]`);
+      throw new Unauthorized(`wrong password for user [username][${username}]`);
     }
     return this.jwtService.sign(TokenDTO.from(user));
   }
