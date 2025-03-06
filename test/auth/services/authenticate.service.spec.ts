@@ -5,6 +5,7 @@ import { IAuthenticateService } from 'src/auth/services/authenticate.service';
 import { AuthenticateService } from 'src/auth/services/authenticate.service.impl';
 import { CreateUserDTO } from 'src/commons/dtos/create-user.dto';
 import { User } from 'src/user/entities/user';
+import { compareSync, hashSync } from 'bcrypt';
 import {
   jwtServiceMock,
   JwtServiceMockToken,
@@ -13,6 +14,13 @@ import {
   userServiceMock,
   UserServiceMockToken,
 } from 'test/mocks/user.service.mock';
+
+jest.mock('bcrypt', () => {
+  return {
+    compareSync: jest.fn(),
+    hashSync: jest.fn(),
+  };
+});
 
 describe('AuthenticateService', () => {
   let authenticateService: IAuthenticateService;
@@ -33,13 +41,13 @@ describe('AuthenticateService', () => {
       const token = '123123';
       const findUsernameResponse = new User();
       findUsernameResponse.id = 1;
-      findUsernameResponse.password =
-        authenticateService.hashPassword(password);
+      findUsernameResponse.password = password;
       findUsernameResponse.username = username;
       jest
         .spyOn(userServiceMock, 'findUsername')
         .mockResolvedValueOnce(findUsernameResponse);
       jest.spyOn(jwtServiceMock, 'sign').mockReturnValueOnce(token);
+      (compareSync as jest.Mock).mockReturnValueOnce(true);
       const response = await authenticateService.signIn({
         password,
         username,
@@ -49,6 +57,7 @@ describe('AuthenticateService', () => {
       expect(jwtServiceMock.sign).toHaveBeenCalledWith(
         TokenDTO.from(findUsernameResponse),
       );
+      expect(compareSync).toHaveBeenCalledWith(password, password);
       expect(response).toStrictEqual(token);
     });
     it('should not sign in successfully due to not found user', async () => {
@@ -75,6 +84,7 @@ describe('AuthenticateService', () => {
       jest
         .spyOn(userServiceMock, 'findUsername')
         .mockResolvedValueOnce(findUsernameResponse);
+      (compareSync as jest.Mock).mockReturnValueOnce(false);
       expect(async () =>
         authenticateService.signIn({
           password,
@@ -91,16 +101,18 @@ describe('AuthenticateService', () => {
         password: '123',
         username: '123',
       };
+      (hashSync as jest.Mock).mockResolvedValueOnce(dto.password);
       jest.spyOn(userServiceMock, 'createUser').mockImplementation(async () => {
         const u = new User();
         u.id = 0;
-        u.password = authenticateService.hashPassword(dto.password);
+        u.password = dto.password;
         u.username = dto.username;
         return u;
       });
       const userCreated = await authenticateService.signUp(dto);
       expect(userCreated.id).toStrictEqual(0);
       expect(userCreated.username).toStrictEqual(dto.username);
+      expect(hashSync).toHaveBeenCalledWith(dto.password, 3);
     });
   });
 });
