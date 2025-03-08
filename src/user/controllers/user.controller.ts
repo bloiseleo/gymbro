@@ -11,7 +11,8 @@ import { HttpResponse } from 'src/commons/http-response';
 import { CreatedUserDTO } from 'src/commons/dtos/created-user.dto';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
-import { TokenDTO } from 'src/auth/dtos/token.dto';
+import { Token } from 'src/commons/decorators/token.decorator';
+import { Unauthorized } from 'src/auth/errors/unauthorized.error';
 
 @Controller('users')
 @UseGuards(AuthGuard)
@@ -28,9 +29,12 @@ export class UserController {
     status: HttpStatus.OK,
     type: HttpResponse<CreatedUserDTO>,
   })
-  async me(@Req() request: Request): Promise<HttpResponse<CreatedUserDTO>> {
-    const token = request['tokenPayload'] as TokenDTO;
-    const user = await this.userService.getUser(token.id);
+  async me(@Token('id') id?: string): Promise<HttpResponse<CreatedUserDTO>> {
+    if (!id)
+      throw new Unauthorized(
+        'no token provided to extract information about the user',
+      );
+    const user = await this.userService.getUser(id);
     return HttpResponse.okWithData('me', CreatedUserDTO.from(user));
   }
 
