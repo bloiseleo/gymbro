@@ -6,7 +6,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UsernameAlreadyTaken } from '../errors/username-already-taken.error';
 import { InvalidId } from '../errors/invalid-id.error';
 import { UserNotFound } from '../errors/user-not-found.error';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class UserService implements IUserService {
   constructor(
     @InjectRepository(User)

@@ -7,6 +7,7 @@ import { SignInDTO } from '../dtos/sign-in.dto';
 import { User } from 'src/user/entities/user';
 import { Unauthorized } from '../errors/unauthorized.error';
 import { JwtService } from '@nestjs/jwt';
+import { TokenDTO } from '../dtos/token.dto';
 
 @Injectable()
 export class AuthenticateService implements IAuthenticateService {
@@ -27,9 +28,9 @@ export class AuthenticateService implements IAuthenticateService {
       throw new Unauthorized(`username [${username}] was not found`);
     }
     if (!this.equals(password, user.password)) {
-      throw new Unauthorized(`wrogn password for user [username][${username}]`);
+      throw new Unauthorized(`wrong password for user [username][${username}]`);
     }
-    return this.jwtService.sign('{"teste":}');
+    return this.jwtService.sign(TokenDTO.from(user));
   }
   signUp(data: CreateUserDTO): Promise<User> {
     const { username, password } = data;

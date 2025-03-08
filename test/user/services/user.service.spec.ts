@@ -6,6 +6,8 @@ import {
   UserRepositoryMockProvider,
 } from 'test/mocks/user.repository.mock';
 import { UsernameAlreadyTaken } from 'src/user/errors/username-already-taken.error';
+import { UserNotFound } from 'src/user/errors/user-not-found.error';
+import { InvalidId } from 'src/user/errors/invalid-id.error';
 
 describe('UserService', () => {
   let userService: UserService;
@@ -66,6 +68,59 @@ describe('UserService', () => {
       expect(userRepositoryMock.existsBy).toHaveBeenCalledWith({
         username: '123',
       });
+    });
+  });
+  describe('getUser', () => {
+    it('should find the user by id', async () => {
+      const user = new User();
+      user.id = 0;
+      user.password = '123';
+      user.username = 'Leonardo';
+      jest.spyOn(userRepositoryMock, 'findOneBy').mockResolvedValue(user);
+      const response = await userService.getUser(user.id.toString());
+      expect(userRepositoryMock.findOneBy).toHaveBeenCalledWith({
+        id: user.id,
+      });
+      expect(response).toStrictEqual(user);
+    });
+    it('should not find the user by id', async () => {
+      jest.spyOn(userRepositoryMock, 'findOneBy').mockResolvedValue(null);
+      await expect(async () => await userService.getUser('1')).rejects.toThrow(
+        UserNotFound,
+      );
+      expect(userRepositoryMock.findOneBy).toHaveBeenCalledWith({
+        id: 1,
+      });
+    });
+    it.each([['-1'], ['NaN']])(
+      'should throw error due to invalid ID',
+      async (id: string) => {
+        expect(async () => await userService.getUser(id)).rejects.toThrow(
+          InvalidId,
+        );
+        expect(userRepositoryMock.findOneBy).not.toHaveBeenCalledWith({
+          id: Number.parseInt(id),
+        });
+      },
+    );
+  });
+  describe('findUsername', () => {
+    it('should find user by username', async () => {
+      const user = new User();
+      user.id = 1;
+      user.password = '123';
+      user.username = 'leo';
+      jest.spyOn(userRepositoryMock, 'findOneBy').mockResolvedValue(user);
+      const response = await userService.findUsername(user.username);
+      expect(response).toStrictEqual(user);
+      expect(userRepositoryMock.findOneBy).toHaveBeenCalledWith({
+        username: user.username,
+      });
+    });
+    it('should not find user by username and return undefined', async () => {
+      jest.spyOn(userRepositoryMock, 'findOneBy').mockResolvedValue(null);
+      const response = await userService.findUsername('123123');
+      expect(response).toBeUndefined();
     });
   });
 });
