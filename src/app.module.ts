@@ -6,6 +6,5 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [UserModule, InfraModule, AuthModule],
   controllers: [],
-  providers: [],
 })
 export class AppModule {}

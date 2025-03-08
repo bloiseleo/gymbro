@@ -8,6 +8,7 @@ function buildSwagger(app: INestApplication) {
     .setTitle('MyGymBro')
     .setDescription('MyGymBro API')
     .setVersion('0.0.1')
+    .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, documentFactory);
