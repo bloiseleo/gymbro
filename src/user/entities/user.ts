@@ -13,4 +13,10 @@ export class User {
     nullable: false,
   })
   password: string;
+  @Column({
+    name: 'profile_photo',
+    nullable: false,
+    default: 'default_profile_photo.jpg',
+  })
+  profilePhoto: string;
 }

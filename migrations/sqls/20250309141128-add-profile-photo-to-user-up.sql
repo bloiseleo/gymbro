@@ -1,0 +1,1 @@
+ALTER TABLE IF EXISTS users ADD COLUMN IF NOT EXISTS profile_photo VARCHAR NOT NULL DEFAULT 'default_profile_photo.jpg'
